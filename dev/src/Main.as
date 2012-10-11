@@ -158,8 +158,10 @@
 		private function onBtnValNotaClick(e:MouseEvent):void 
 		{
 			//valendoNota = true;
+			reset();
 			btnValNota.alpha = 0.5;
 			btnValNota.buttonMode = false;
+			btnValNota.mouseEnabled = false;
 			
 			eval.currentPlayMode = AIConstants.PLAYMODE_EVALUATE;
 		}
