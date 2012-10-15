@@ -46,7 +46,8 @@
 			
 			ai = new AI(this);
 			ai.container.messageLabel.visible = false;
-			
+			ai.container.setAboutScreen(new AboutScreen132());
+			ai.container.setInfoScreen(new InfoScreen132());
 			this.scrollRect = new Rectangle(0, 0, 640, 480);
 			
 			cretaeLayers();
