@@ -55,6 +55,7 @@
     <element path="..\..\cepa-framework\includes\as3corelib.swc" />
     <element path="..\..\cepa-framework\includes\menuMoldura.swc" />
     <element path="..\..\cepa-framework\includes\ui.swc" />
+    <element path="..\..\cepa-framework\cepa\eval\ProgEvalStats.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

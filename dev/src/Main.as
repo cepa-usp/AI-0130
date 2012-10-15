@@ -1,8 +1,15 @@
 ﻿package  
 {
 	import cepa.ai.AI;
+	import cepa.ai.AIConstants;
+	import cepa.ai.AIInstance;
+	import cepa.ai.AIObserver;
+	import cepa.ai.IPlayInstance;
+	import cepa.eval.ProgressiveEvaluator;
+	import cepa.eval.StatsScreen;
 	import cepa.utils.ToolTip;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
@@ -19,7 +26,7 @@
 	 * ...
 	 * @author Alexandre
 	 */
-	public class Main extends AtividadeInterativa
+	public class Main extends MovieClip implements AIObserver, AIInstance
 	{
 		//Camadas:
 		private var shapeLayer:Sprite;
@@ -34,6 +41,12 @@
 		
 		private var ai:AI;
 		
+		private var valendoNota:Boolean;
+		
+		private var eval:ProgressiveEvaluator;
+		
+		private var stats:StatsScreen;
+		
 		public function Main() 
 		{
 			if (stage) init();
@@ -44,18 +57,35 @@
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
+			btnValNota.visible = false;
+			
+			this.scrollRect = new Rectangle(0, 0, 700, 500);
+			
 			ai = new AI(this);
 			ai.container.messageLabel.visible = false;
-			ai.container.setAboutScreen(new AboutScreen132());
-			ai.container.setInfoScreen(new InfoScreen132());
-			this.scrollRect = new Rectangle(0, 0, 640, 480);
+			ai.addObserver(this);
+			ai.container.setAboutScreen(new AboutScreen130());
+			ai.container.setInfoScreen(new InfoScreen130());
+			
+			eval = new ProgressiveEvaluator(ai);
+			eval.minimumScoreForAcceptance = .7
+			eval.minimumTrialsForParticipScore = 4;
+			ai.evaluator = eval;
+			
+			stats = new StatsScreen(eval, ai);
+			stats.bindButton(ai.container.optionButtons.btStatistics);
 			
 			cretaeLayers();
-			//addButtons();
+			addButtons();
 			addMainShape();
 			//addPointingArraow();
 			
 			if (ExternalInterface.available) initLMSConnection();
+			
+			if (!completed) btnValNota.visible = true;
+			ai.debugMode = true;
+			ai.initialize();
+			btNovamente.visible = false;
 			
 			//stage.addEventListener(KeyboardEvent.KEY_UP, bindKeys);
 		}
@@ -80,40 +110,59 @@
 		
 		private function addButtons():void 
 		{
-			var btnAddCargaPos:AddCargaPos = new AddCargaPos();
-			var btnAddCargaNeg:AddCargaNeg = new AddCargaNeg();
-			
-			var btnOk:BtAvaliar = new BtAvaliar();
-			btnOk.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { btnOk.gotoAndStop(2) } )
-			btnOk.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void { btnOk.gotoAndStop(1) } )
-			
-			//var btnNovamente:BtNovamente = new BtNovamente();
-			//btnNovamente.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { btnNovamente.gotoAndStop(2) } )
-			//btnNovamente.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void { btnNovamente.gotoAndStop(1) } )
+
 			
 			var ttPos:ToolTip = new ToolTip(btnAddCargaPos, "Adicionar carga positiva", 12, 0.8, 200, 0.6, 0.6);
 			var ttNeg:ToolTip = new ToolTip(btnAddCargaNeg, "Adicionar carga negativa", 12, 0.8, 200, 0.6, 0.6);
 			var ttOk:ToolTip = new ToolTip(btnOk, "Avaliar exercício", 12, 0.8, 200, 0.6, 0.6);
+			//var ttOk2:ToolTip = new ToolTip(btNovamente, "Novo exercício", 12, 0.8, 200, 0.6, 0.6);
 			//var ttNovamente:ToolTip = new ToolTip(btnNovamente, "Nova tentativa", 12, 0.8, 200, 0.6, 0.6);
+			
+			btnAddCargaPos.buttonMode = true;
+			btnAddCargaNeg.buttonMode = true;
+			btnValNota.buttonMode = true;
+			btnOk.buttonMode = true;
 			
 			addChild(ttPos);
 			addChild(ttNeg);
 			addChild(ttOk);
 			//addChild(ttNovamente);
 			
-			menuBar.addButton(btnAddCargaPos, initAddCargaPos, 0, true);
-			menuBar.addButton(btnAddCargaNeg, initAddCargaNeg, 0, true);
-			menuBar.addButton(btnOk, aval, 15, false);
+			btnAddCargaPos.addEventListener(MouseEvent.MOUSE_DOWN, initAddCargaPos);
+			btnAddCargaNeg.addEventListener(MouseEvent.MOUSE_DOWN, initAddCargaNeg);
+			btnOk.addEventListener(MouseEvent.MOUSE_DOWN, aval);
+			btNovamente.addEventListener(MouseEvent.MOUSE_DOWN, onNovamente);
+			btnValNota.addEventListener(MouseEvent.MOUSE_DOWN, onBtnValNotaClick);
+			
+			//menuBar.addButton(btnAddCargaPos, initAddCargaPos, 0, true);
+			//menuBar.addButton(btnAddCargaNeg, initAddCargaNeg, 0, true);
+			//menuBar.addButton(btnOk, aval, 15, false);
 			//menuBar.addButton(btnNovamente, reset, 11, false);
-			btnReset.addEventListener(MouseEvent.CLICK, reset);
+			//btnReset.addEventListener(MouseEvent.CLICK, reset);
 			
-			var ttReset:ToolTip = new ToolTip(btnReset, "Nova tentativa", 12, 0.8, 200, 0.6, 0.6);
-			var ttCC:ToolTip = new ToolTip(btnCC, "Créditos", 12, 0.8, 200, 0.6, 0.6);
-			var ttInfo:ToolTip = new ToolTip(btnInstructions, "Ajuda", 12, 0.8, 200, 0.6, 0.6);
+			//var ttReset:ToolTip = new ToolTip(btnReset, "Nova tentativa", 12, 0.8, 200, 0.6, 0.6);
+			//var ttCC:ToolTip = new ToolTip(btnCC, "Créditos", 12, 0.8, 200, 0.6, 0.6);
+			//var ttInfo:ToolTip = new ToolTip(btnInstructions, "Ajuda", 12, 0.8, 200, 0.6, 0.6);
 			
-			addChild(ttReset);
-			addChild(ttCC);
-			addChild(ttInfo);
+			//addChild(ttReset);
+			//addChild(ttCC);
+			//addChild(ttInfo);
+		}
+		
+		private function onNovamente(e:MouseEvent):void 
+		{
+			reset();
+		}
+		
+		private function onBtnValNotaClick(e:MouseEvent):void 
+		{
+			//valendoNota = true;
+			reset();
+			btnValNota.alpha = 0.5;
+			btnValNota.buttonMode = false;
+			btnValNota.mouseEnabled = false;
+			
+			eval.currentPlayMode = AIConstants.PLAYMODE_EVALUATE;
 		}
 		
 		private function initAddCargaPos(e:MouseEvent):void 
@@ -232,8 +281,8 @@
 			backgroundShape = new (getDefinitionByName("Forma" + String(random)));
 			
 			shapeLayer.addChild(backgroundShape);
-			backgroundShape.x = 640 / 2;
-			backgroundShape.y = 480 / 2;
+			backgroundShape.x = 700 / 2;
+			backgroundShape.y = 500 / 2;
 			
 			var pos:Point = backgroundShape.localToGlobal(new Point(backgroundShape.condutor.x, backgroundShape.condutor.y));
 			backgroundShape.removeChild(backgroundShape.condutor);
@@ -265,6 +314,16 @@
 		private function aval(e:MouseEvent = null):void
 		{
 			removeFilters();
+
+			btnOk.visible = false;
+			btNovamente.visible = true;
+			btNovamente.buttonMode = true;
+			
+			
+			
+
+			
+			
 			var particulasDentro:Boolean = verificaParticulasFora();
 			var pontuacaoEsperadaBorda:int = somaCargasEsperadaBorda();
 			var pontuacaoBorda:int = somaParticulasBorda(Forma(backgroundShape));
@@ -302,16 +361,9 @@
 				if(!completed) scoreAtual = 0;
 			}
 			
-			if(ExternalInterface.available){
-				if (!completed) {
-					score = scoreAtual;
-					completed = true;
-					commit();
-				}else if(scoreAtual > score){
-					score = scoreAtual;
-					commit();
-				}
-			}
+			var play:PlayInstance130 = new PlayInstance130();
+			play.score = scoreAtual/100;
+			eval.addPlayInstance(play);
 			
 			resultScreen.visible = true;
 		}
@@ -355,6 +407,60 @@
 			//if (forma.borda.hitTestPoint(part.x, part.y, true)) return true;
 			//if (forma.borda.hitTestObject(part)) return true;
 			else return false;
+		}
+		
+		/* INTERFACE cepa.ai.AIObserver */
+		
+		public function onResetClick():void 
+		{
+			reset();
+		}
+		
+		public function onScormFetch():void 
+		{
+			
+		}
+		
+		public function onScormSave():void 
+		{
+			
+		}
+		
+		public function onStatsClick():void 
+		{
+			
+		}
+		
+		public function onTutorialClick():void 
+		{
+			
+		}
+		
+		public function onScormConnected():void 
+		{
+			
+		}
+		
+		public function onScormConnectionError():void 
+		{
+			
+		}
+		
+		/* INTERFACE cepa.ai.AIInstance */
+		
+		public function getData():Object 
+		{
+			return new Object();
+		}
+		
+		public function readData(obj:Object) 
+		{
+			
+		}
+		
+		public function createNewPlayInstance():IPlayInstance 
+		{
+			return new PlayInstance130();
 		}
 		
 		private var raioParticula:Number = 8;
@@ -415,6 +521,8 @@
 		private function reset(e:MouseEvent = null):void
 		{
 			addMainShape();
+			btnOk.visible = true;
+			btNovamente.visible = false;
 			for each (var item:Particula in particulasStage)
 			{
 				particulasLayer.removeChild(item);
@@ -556,5 +664,4 @@
 		}
 		
 	}
-
 }
