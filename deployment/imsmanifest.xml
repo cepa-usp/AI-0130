@@ -17,7 +17,7 @@
 </metadata>
 <organizations default="CEPA">
 	<organization identifier="CEPA">
-		<title>Título</title>
+		<title>Carga Elétrica</title>
 		<item identifier="item1" identifierref="item1_resource">
 			<title>Exercício</title>
 		</item>
@@ -34,7 +34,7 @@
 	<file href="./js/jquery-1.4.2.min.js"/>
   	<file href="./js/swfobject.js"/>
    	<file href="./js/scorm_wrapper.min.js"/>
-    <file href="./swf/AI-0130.swf"/>
+    <file href="./swf/AI-0132.swf"/>
     <file href="./swf/AI_Loader.swf"/>
     <file href="./swf/expressInstall.swf"/>
 	</resource>

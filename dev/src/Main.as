@@ -80,9 +80,10 @@
 			addMainShape();
 			//addPointingArraow();
 			
-			if (ExternalInterface.available) initLMSConnection();
+			//if (ExternalInterface.available) initLMSConnection();
 			
 			if (!completed) btnValNota.visible = true;
+			
 			ai.debugMode = true;
 			ai.initialize();
 			btNovamente.visible = false;
