@@ -10,12 +10,14 @@
 	import cepa.utils.ToolTip;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
+	import flash.filters.ColorMatrixFilter;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -47,6 +49,16 @@
 		
 		private var stats:StatsScreen;
 		
+		/*
+		 * Filtro de conversão para tons de cinza.
+		 */
+		protected const GRAYSCALE_FILTER:ColorMatrixFilter = new ColorMatrixFilter([
+			0.2225, 0.7169, 0.0606, 0, 0,
+			0.2225, 0.7169, 0.0606, 0, 0,
+			0.2225, 0.7169, 0.0606, 0, 0,
+			0.0000, 0.0000, 0.0000, 1, 0
+		]);
+		
 		public function Main() 
 		{
 			if (stage) init();
@@ -57,7 +69,7 @@
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
-			btnValNota.visible = false;
+			//btnValNota.visible = false;
 			
 			this.scrollRect = new Rectangle(0, 0, 700, 500);
 			
@@ -80,15 +92,51 @@
 			addMainShape();
 			//addPointingArraow();
 			
-			//if (ExternalInterface.available) initLMSConnection();
-			
-			if (!completed) btnValNota.visible = true;
+			//if (!completed) btnValNota.visible = true;
+			if (completed) lock(btnValNota);
+			else iniciaTutorial();
 			
 			ai.debugMode = true;
 			ai.initialize();
-			btNovamente.visible = false;
+			//btNovamente.visible = false;
+			lock(btNovamente);
 			
 			//stage.addEventListener(KeyboardEvent.KEY_UP, bindKeys);
+		}
+		
+		private function makeButton(btn:MovieClip):void
+		{
+			btn.mouseChildren = false;
+			btn.buttonMode = true;
+			btn.addEventListener(MouseEvent.MOUSE_OVER, overBtn);
+		}
+		
+		private function overBtn(e:MouseEvent):void 
+		{
+			var btn:MovieClip = MovieClip(e.target);
+			btn.addEventListener(MouseEvent.MOUSE_OUT, outBtn);
+			btn.gotoAndStop(2);
+		}
+		
+		private function outBtn(e:MouseEvent):void 
+		{
+			var btn:MovieClip = MovieClip(e.target);
+			btn.removeEventListener(MouseEvent.MOUSE_OUT, outBtn);
+			btn.gotoAndStop(1);
+		}
+		
+		private function lock(bt:*):void 
+		{
+			bt.mouseEnabled = false;
+			bt.alpha = 0.5;
+			bt.filters = [GRAYSCALE_FILTER];
+		}
+		
+		private function unlock(bt:*):void 
+		{
+			bt.mouseEnabled = true;
+			bt.alpha = 1;
+			bt.filters = [];
 		}
 		
 		private var pointingArrow:PointingArrow;
@@ -116,18 +164,24 @@
 			var ttPos:ToolTip = new ToolTip(btnAddCargaPos, "Adicionar carga positiva", 12, 0.8, 200, 0.6, 0.6);
 			var ttNeg:ToolTip = new ToolTip(btnAddCargaNeg, "Adicionar carga negativa", 12, 0.8, 200, 0.6, 0.6);
 			var ttOk:ToolTip = new ToolTip(btnOk, "Avaliar exercício", 12, 0.8, 200, 0.6, 0.6);
-			//var ttOk2:ToolTip = new ToolTip(btNovamente, "Novo exercício", 12, 0.8, 200, 0.6, 0.6);
-			//var ttNovamente:ToolTip = new ToolTip(btnNovamente, "Nova tentativa", 12, 0.8, 200, 0.6, 0.6);
+			var ttNovamente:ToolTip = new ToolTip(btNovamente, "Novo exercício", 12, 0.8, 200, 0.6, 0.6);
+			var ttValendo:ToolTip = new ToolTip(btnValNota, "Exercícios valendo nota", 12, 0.8, 200, 0.6, 0.6);
 			
-			btnAddCargaPos.buttonMode = true;
-			btnAddCargaNeg.buttonMode = true;
-			btnValNota.buttonMode = true;
-			btnOk.buttonMode = true;
+			//btnAddCargaPos.buttonMode = true;
+			//btnAddCargaNeg.buttonMode = true;
+			//btnValNota.buttonMode = true;
+			//btnOk.buttonMode = true;
+			makeButton(btnValNota);
+			makeButton(btnOk);
+			makeButton(btNovamente);
+			makeButton(btnAddCargaPos);
+			makeButton(btnAddCargaNeg);
 			
 			addChild(ttPos);
 			addChild(ttNeg);
 			addChild(ttOk);
-			//addChild(ttNovamente);
+			addChild(ttNovamente);
+			addChild(ttValendo);
 			
 			btnAddCargaPos.addEventListener(MouseEvent.MOUSE_DOWN, initAddCargaPos);
 			btnAddCargaNeg.addEventListener(MouseEvent.MOUSE_DOWN, initAddCargaNeg);
@@ -159,9 +213,10 @@
 		{
 			//valendoNota = true;
 			reset();
-			btnValNota.alpha = 0.5;
-			btnValNota.buttonMode = false;
-			btnValNota.mouseEnabled = false;
+			//btnValNota.alpha = 0.5;
+			//btnValNota.buttonMode = false;
+			//btnValNota.mouseEnabled = false;
+			lock(btnValNota);
 			
 			eval.currentPlayMode = AIConstants.PLAYMODE_EVALUATE;
 		}
@@ -316,9 +371,11 @@
 		{
 			removeFilters();
 
-			btnOk.visible = false;
-			btNovamente.visible = true;
-			btNovamente.buttonMode = true;
+			//btnOk.visible = false;
+			lock(btnOk);
+			//btNovamente.visible = true;
+			unlock(btNovamente);
+			//btNovamente.buttonMode = true;
 			
 			
 			
@@ -434,7 +491,7 @@
 		
 		public function onTutorialClick():void 
 		{
-			
+			iniciaTutorial();
 		}
 		
 		public function onScormConnected():void 
@@ -522,13 +579,108 @@
 		private function reset(e:MouseEvent = null):void
 		{
 			addMainShape();
-			btnOk.visible = true;
-			btNovamente.visible = false;
+			//btnOk.visible = true;
+			unlock(btnOk);
+			//btNovamente.visible = false;
+			lock(btNovamente);
 			for each (var item:Particula in particulasStage)
 			{
 				particulasLayer.removeChild(item);
 			}
 			particulasStage.splice(0, particulasStage.length);
+		}
+		
+		
+		
+				//---------------- Tutorial -----------------------
+		
+		private var balao:CaixaTexto;
+		private var pointsTuto:Array;
+		private var tutoBaloonPos:Array;
+		private var tutoPos:int;
+		private var tutoSequence:Array;
+		private var layerBlock:Sprite;
+		
+		private function iniciaTutorial(e:MouseEvent = null):void  
+		{
+			blockAI();
+			
+			tutoPos = 0;
+			if(balao == null){
+				balao = new CaixaTexto();
+				stage.addChild(balao);
+				balao.visible = false;
+				
+				tutoSequence = ["Veja aqui as orientações.",
+								"A região clara representa um condutor elétrico isolado.",
+								"Este condutor tem uma (ou mais) cavidade(s) e, dentro dela(s), há cargas elétricas.",
+								"Arraste cargas elétricas negativas ou positivas para as superfícies interna e externa do condutor, conforme a necessidade, de modo a representar as cargas induzidas pela(s) carga(s) na(s) cavidade(s).",
+								"Quando tiver terminado, pressione este botão.",
+								"Para começar um NOVO exercício, pressione este botão.",
+								"Quando você estiver pronto(a) para ser avaliado(a), pressione este botão.",
+								"Veja o seu desempenho aqui."];
+				
+				pointsTuto = 	[new Point(650, 400),
+								new Point(350 , 200),
+								new Point(350 , 300),
+								new Point(54 , 450),
+								new Point(140 , 450),
+								new Point(255 , 450),
+								new Point(370 , 450),
+								new Point(650 , 320)];
+								
+				tutoBaloonPos = [[CaixaTexto.RIGHT, CaixaTexto.CENTER],
+								["", ""],
+								["", ""],
+								[CaixaTexto.BOTTON, CaixaTexto.FIRST],
+								[CaixaTexto.BOTTON, CaixaTexto.FIRST],
+								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
+								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
+								[CaixaTexto.RIGHT, CaixaTexto.FIRST]];
+			}
+			balao.removeEventListener(BaseEvent.NEXT_BALAO, closeBalao);
+			
+			balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+			balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+			balao.addEventListener(BaseEvent.NEXT_BALAO, closeBalao);
+			balao.addEventListener(BaseEvent.CLOSE_BALAO, iniciaAi);
+		}
+		
+		private function closeBalao(e:Event):void 
+		{
+			tutoPos++;
+			if (tutoPos >= tutoSequence.length) {
+				balao.removeEventListener(BaseEvent.NEXT_BALAO, closeBalao);
+				balao.visible = false;
+				iniciaAi(null);
+			}else {
+				balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+				balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+			}
+		}
+		
+		private function iniciaAi(e:BaseEvent):void 
+		{
+			balao.removeEventListener(BaseEvent.CLOSE_BALAO, iniciaAi);
+			balao.removeEventListener(BaseEvent.NEXT_BALAO, closeBalao);
+			unblockAI();
+		}
+		
+		protected function blockAI():void
+		{
+			if (layerBlock == null) {
+				layerBlock = new Sprite();
+				layerBlock.name = "block";
+				layerBlock.graphics.beginFill(0xFFFFFF, 0.4);
+				layerBlock.graphics.drawRect(0, 0, 700, 500);
+				stage.addChild(layerBlock);
+			}
+			layerBlock.visible = true;
+		}
+		
+		protected function unblockAI():void
+		{
+			layerBlock.visible = false;
 		}
 		
 		

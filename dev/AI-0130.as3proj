@@ -56,6 +56,7 @@
     <element path="..\..\cepa-framework\includes\menuMoldura.swc" />
     <element path="..\..\cepa-framework\includes\ui.swc" />
     <element path="..\..\cepa-framework\cepa\eval\ProgEvalStats.swc" />
+    <element path="lib\Botoes.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>
