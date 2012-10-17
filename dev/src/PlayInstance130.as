@@ -42,7 +42,7 @@ package
 		
 		public function returnAsObject():Object 
 		{
-			var o:Object = [];
+			var o:Object = new Object();
 			o.score = _score;
 			o.playMode = _playMode;
 			return o;
