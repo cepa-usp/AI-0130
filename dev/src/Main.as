@@ -420,7 +420,7 @@
 			}
 			
 			var play:PlayInstance130 = new PlayInstance130();
-			play.score = scoreAtual/100;
+			play.score = scoreAtual / 100;
 			eval.addPlayInstance(play);
 			
 			resultScreen.visible = true;

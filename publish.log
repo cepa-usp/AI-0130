@@ -2,17 +2,7 @@ Copying from /d/Projetos/05 - GitHub/AI-0130 to cepa@arquivos.atp.usp.br:/work/P
 building file list ... done
 ./
 AI-0130_PIF.zip
-imsmanifest.xml
-index.html
-js/
-js/ai.js
-js/jquery-1.4.2.min.js
-js/scorm_wrapper.min.js
-js/swfobject.js
-swf/
 swf/AI-0130.swf
-swf/AI_Loader.swf
-swf/expressInstall.swf
 
-sent 1166230 bytes  received 10057 bytes  784191.33 bytes/sec
-total size is 1214622  speedup is 1.03
+sent 1069743 bytes  received 9035 bytes  719185.33 bytes/sec
+total size is 1215655  speedup is 1.13

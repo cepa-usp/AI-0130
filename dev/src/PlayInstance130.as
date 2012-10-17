@@ -44,12 +44,14 @@ package
 		{
 			var o:Object = [];
 			o.score = _score;
+			o.playMode = _playMode;
 			return o;
 		}
 		
 		public function bind(obj:Object):void 
 		{
 			_score = obj.score;
+			_playMode = obj.playMode;
 		}
 		
 		public function getScore():Number 
