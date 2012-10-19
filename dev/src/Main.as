@@ -99,7 +99,12 @@
 			ai.debugMode = true;
 			ai.initialize();
 			//btNovamente.visible = false;
+			
+			
 			lock(btNovamente);
+			if (eval.currentPlayMode == AIConstants.PLAYMODE_EVALUATE) {
+				lock(btnValNota);
+			}
 			
 			//stage.addEventListener(KeyboardEvent.KEY_UP, bindKeys);
 		}
