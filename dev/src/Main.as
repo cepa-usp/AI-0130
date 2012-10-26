@@ -217,13 +217,23 @@
 		private function onBtnValNotaClick(e:MouseEvent):void 
 		{
 			//valendoNota = true;
-			reset();
+			
 			//btnValNota.alpha = 0.5;
 			//btnValNota.buttonMode = false;
 			//btnValNota.mouseEnabled = false;
-			lock(btnValNota);
 			
-			eval.currentPlayMode = AIConstants.PLAYMODE_EVALUATE;
+			
+			//eval.currentPlayMode = AIConstants.PLAYMODE_EVALUATE;
+			eval.askEvaluation(btnValNota, onEvalResponse);
+			
+		}
+		
+		private function onEvalResponse():void {
+			if (eval.currentPlayMode == AIConstants.PLAYMODE_EVALUATE) {
+				reset();	
+				//lock(btnValNota);
+			}
+			
 		}
 		
 		private function initAddCargaPos(e:MouseEvent):void 
