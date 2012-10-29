@@ -104,6 +104,7 @@
 			lock(btNovamente);
 			if (eval.currentPlayMode == AIConstants.PLAYMODE_EVALUATE) {
 				lock(btnValNota);
+				valendoNota = true;
 			}
 			
 			//stage.addEventListener(KeyboardEvent.KEY_UP, bindKeys);
@@ -230,7 +231,8 @@
 		
 		private function onEvalResponse():void {
 			if (eval.currentPlayMode == AIConstants.PLAYMODE_EVALUATE) {
-				reset();	
+				reset();
+				valendoNota = true;
 				//lock(btnValNota);
 			}
 			
@@ -387,7 +389,7 @@
 			removeFilters();
 
 			//btnOk.visible = false;
-			lock(btnOk);
+			if (eval.currentPlayMode == AIConstants.PLAYMODE_EVALUATE) lock(btnOk);
 			//btNovamente.visible = true;
 			unlock(btNovamente);
 			//btNovamente.buttonMode = true;
@@ -415,6 +417,7 @@
 				resultScreen.resultado.text = resultadoCerto;
 				resultScreen.texto.text = textoCerto;
 				scoreAtual = 100;
+				lock(btnOk);
 			}else {
 				var textoErrado:String = "";
 				if (!particulasDentro) {
