@@ -1,8 +1,18 @@
-Copying from /home/arthur/CEPA/github/AI-0130 to cepa@arquivos.atp.usp.br:/work/PUBLICACAO/atividades-interativas/AI-0130
+Copying from /d/Projetos/05 - GitHub/AI-0130 to cepa@arquivos.atp.usp.br:/work/PUBLICACAO/atividades-interativas/AI-0130
 building file list ... done
 ./
 AI-0130_PIF.zip
+imsmanifest.xml
+index.html
+js/
+js/ai.js
+js/jquery-1.4.2.min.js
+js/scorm_wrapper.min.js
+js/swfobject.js
+swf/
 swf/AI-0130.swf
+swf/AI_Loader.swf
+swf/expressInstall.swf
 
-sent 1055807 bytes  received 8963 bytes  2129540.00 bytes/sec
-total size is 1200235  speedup is 1.13
+sent 1313196 bytes  received 10069 bytes  882176.67 bytes/sec
+total size is 1329736  speedup is 1.00
