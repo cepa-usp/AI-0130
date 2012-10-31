@@ -477,10 +477,10 @@
 		
 		public function verifyBorder(part:Particula, forma:Forma):Boolean
 		{
-			if (forma.borda.hitTestPoint(part.x, part.y, true) ||
+			/*if (forma.borda.hitTestPoint(part.x, part.y, true) ||
 				forma.borda.hitTestPoint(part.x + raioParticula, part.y, true) || forma.borda.hitTestPoint(part.x - raioParticula, part.y, true) || 
-				forma.borda.hitTestPoint(part.x, part.y + raioParticula, true) || forma.borda.hitTestPoint(part.x, part.y - raioParticula, true)) return true;
-			//if (forma.borda.hitTestPoint(part.x, part.y, true)) return true;
+				forma.borda.hitTestPoint(part.x, part.y + raioParticula, true) || forma.borda.hitTestPoint(part.x, part.y - raioParticula, true)) return true;*/
+			if (forma.borda.hitTestPoint(part.x, part.y, true)) return true;
 			//if (forma.borda.hitTestObject(part)) return true;
 			else return false;
 		}
